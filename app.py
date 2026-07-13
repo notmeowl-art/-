@@ -15,7 +15,7 @@ app = Flask(__name__, static_folder="static", template_folder="templates")
 KEY = bytes([89,103,38,116,99,37,68,69,117,104,54,37,90,99,94,56])
 IV  = bytes([54,111,121,90,68,114,50,50,69,51,121,99,104,106,77,37])
 USER_AGENT = "UnityPlayer/2022.3.47f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)"
-RELEASE_VERSION = "OB53"
+RELEASE_VERSION = "OB54"
 
 PREFIX_MAP = {
     "902":"Avatar","214":"Facepaint","101":"Female Skills","102":"Male Skills",
